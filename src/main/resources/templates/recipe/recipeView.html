@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <title>Recipe Details</title>
+</head>
+<body>
+<div th:replace="common/navbar :: common-navbar"></div>
+<div class="container d-flex flex-column justify-content-center">
+    <div class="container">
+        <h1 class="row" th:text="${recipe.getTitle()}"></h1>
+        <div class="row align-items-center">
+            <small class="text-muted col-2" th:text="'created by: '+ ${recipe.user.getUsername}"></small>
+            <small class="text-muted col-5" th:text="'published: ' + ${#dates.format(recipe.dateCreated, 'dd/MM/yyy')}"></small>
+            <div class="col-4 justify-content-between">
+                <a th:if="${!isFavourite && !isOwner}" th:href="@{'/favourite/' + ${recipe.id}}"  class="text-decoration-none btn-sm btn-warning col-1 pl-4" >favourite</a>
+                <small th:unless="${!isFavourite && !isOwner}" class="text-muted col-1">favourited</small>
+                <a th:href="@{'/plan/' + ${recipe.id}}"  class="text-decoration-none btn-sm btn-primary col-1 pl-4" >meal plan</a>
+            </div>
+
+        </div>
+        <br>
+        <div th:if="${isOwner}">
+            <a class="text-decoration-none btn-sm btn-primary" th:href="@{${recipeId} + '/edit'}">Edit</a>
+        </div>
+        <div class="row mt-2"><hr></div>
+        <br>
+        <div class="row">
+            <h5 class="col-10" th:text="${recipe.description}"></h5>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <!-- Step Display -->
+    <div class="row">
+    <h4>Steps</h4>
+        <div th:if="${steps.size() > 0}">
+            <div class="row" th:each="step: ${steps}">
+                <p class="col-2" th:text="${step.stepNumber + '. ' + step.stepDescription}"></p>
+            </div>
+        </div>
+        <div th:unless="${steps.size() > 0}">
+            <p>Sorry no steps</p>
+        </div>
+
+    </div>
+
+    <h4>Ingredients</h4>
+    <div th:if="${recipe.ingredients.size() > 0}">
+        <div th:each="ingr: ${recipe.ingredients}">
+            <!-- check to see if ingredient is already in shopping list -->
+            <div th:switch="${list.getIngredients().contains(ingr)}">
+                <a th:case='${false}' th:href="@{'/shoppinglist/' + ${recipe.getId()} + '/'+ ${ingr.getId()}}"><small>Add</small></a>
+                <small class="text-muted" th:case="*">Already in shopping list</small>
+            </div>
+            <p th:text="${ingr.name + ' - ' + ingr.amount}"></p>
+        </div>
+    </div>
+    <div th:unless="${recipe.ingredients.size() > 0}">
+        <p>Sorry no ingredients</p>
+    </div>
+
+</div>
+</body>
+</html>
